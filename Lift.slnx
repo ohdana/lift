@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="Lift.Domain.Tests/Lift.Domain.Tests.csproj" />
-  <Project Path="Lift.Domain/Lift.Domain.csproj" />
-</Solution>

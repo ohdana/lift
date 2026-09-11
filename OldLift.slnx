@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="OldLift.Domain.Tests/OldLift.Domain.Tests.csproj" />
+  <Project Path="OldLift.Domain/OldLift.Domain.csproj" />
+</Solution>
