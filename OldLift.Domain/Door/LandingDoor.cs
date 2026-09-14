@@ -3,9 +3,6 @@ public class LandingDoor : ILandingDoor
     public int Floor { get; private set; }
     public bool IsObstructed { get; set; }
     public DoorState State { get; private set; }
-    
-    private const float OpenDurationSeconds = 3.0f;
-    private const float CloseDurationSeconds = 3.0f;
 
     private VirtualTimer _openingTimer = new VirtualTimer(3.0f);
     private VirtualTimer _closingTimer = new VirtualTimer(3.0f);
