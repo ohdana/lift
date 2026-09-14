@@ -20,7 +20,7 @@ public class LandingDoorTests
         OpenFully(door);
 
         // Assert
-        Assert.True(door.IsFullyOpened);
+        Assert.Equal(DoorState.FullyOpened, door.State);
     }
 
     [Theory]
@@ -37,7 +37,7 @@ public class LandingDoorTests
         CloseFully(door);
 
         // Assert
-        Assert.True(door.IsFullyClosed);
+        Assert.Equal(DoorState.FullyClosed, door.State);
     }
 
     [Theory]
@@ -54,8 +54,7 @@ public class LandingDoorTests
         TryCloseWithObstruction(door);
 
         // Assert
-        Assert.True(door.IsStalled);
-        Assert.False(door.IsFullyClosed);
+        Assert.Equal(DoorState.Stalled, door.State);
     }
 
     private void OpenFully(ILandingDoor door)
