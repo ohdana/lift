@@ -1,31 +1,28 @@
 public class LandingDoor : ILandingDoor
 {
     public int Floor { get; private set; }
-    public bool IsFullyOpened { get; private set; }
-    public bool IsFullyClosed { get; private set; }
     public bool IsObstructed { get; set; }
-    public bool IsStalled { get; private set; }
+
+    public bool IsFullyOpened => _state == DoorState.FullyOpened;
+    public bool IsFullyClosed => _state == DoorState.FullyClosed;
+    public bool IsStalled => _state == DoorState.Stalled;
     
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
 
-    private bool _isOpening;
-    private bool _isClosing;
-    private float _openTimer;
-    private float _closeTimer;
+    private float _timer;
+    private DoorState _state;
 
     public LandingDoor(int floor)
     {
         Floor = floor;
-        IsFullyOpened = false;
-        IsFullyClosed = true;
+        _state = DoorState.FullyClosed;
         IsObstructed = false;
-        IsStalled = false;
-        _isOpening = false;
-        _isClosing = false;
-        _openTimer = 0;
-        _closeTimer = 0;
+        _timer = 0f;
     }
+
+    public void StartOpening() => TransitionTo(DoorState.Opening);
+    public void StartClosing() => TransitionTo(DoorState.Closing);
 
     public void Update(float deltaTime)
     {
@@ -35,47 +32,35 @@ public class LandingDoor : ILandingDoor
 
     private void UpdateClosing(float deltaTime)
     {
-        if (!_isClosing) return;
+        if (_state != DoorState.Closing) return;
+
         if (IsObstructed)
         {
-            IsStalled = true;
-            _isClosing = false;
+            _state = DoorState.Stalled;
             return;
         }
 
-        _closeTimer += deltaTime;
-        if (_closeTimer >= CloseDurationSeconds)
+        _timer += deltaTime;
+        if (_timer >= CloseDurationSeconds)
         {
-            IsFullyClosed = true;
-            _isClosing = false;
-            _closeTimer = 0;
+            _state = DoorState.FullyClosed;
         }
     }
 
     private void UpdateOpening(float deltaTime)
     {
-        if (!_isOpening) return;
+        if (_state != DoorState.Opening) return;
 
-        _openTimer += deltaTime;
-        if (_openTimer >= OpenDurationSeconds)
+        _timer += deltaTime;
+        if (_timer >= OpenDurationSeconds)
         {
-            IsFullyOpened = true;
-            _isOpening = false;
-            _openTimer = 0;
+            _state = DoorState.FullyOpened;
         }
     }
 
-    public void StartOpening()
+    private void TransitionTo(DoorState state)
     {
-        _isOpening = true;
-        IsFullyOpened = false;
-        IsFullyClosed = false;
-    }
-
-    public void StartClosing()
-    {
-        _isClosing = true;
-        IsFullyOpened = false;
-        IsFullyClosed = false;
+        _state = state;
+        _timer = 0f;
     }
 }

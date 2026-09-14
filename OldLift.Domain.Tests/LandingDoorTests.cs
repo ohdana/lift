@@ -5,7 +5,6 @@ public class LandingDoorTests
 {
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
-    private ILandingDoor _door;
 
     [Theory]
     [InlineData(1)]
@@ -14,14 +13,14 @@ public class LandingDoorTests
     public void LandingDoor_WhenOpening_BecomesOpened(int floor)
     {
         // Arrange
-        _door = new LandingDoor(floor);
-        CloseFully();
+        var door = new LandingDoor(floor);
+        CloseFully(door);
 
         // Act
-        OpenFully();
+        OpenFully(door);
 
         // Assert
-        Assert.True(_door.IsFullyOpened);
+        Assert.True(door.IsFullyOpened);
     }
 
     [Theory]
@@ -31,14 +30,14 @@ public class LandingDoorTests
     public void LandingDoor_WhenClosingWithNoObstruction_BecomesClosed(int floor)
     {
         // Arrange
-        _door = new LandingDoor(floor);
-        OpenFully();
+        var door = new LandingDoor(floor);
+        OpenFully(door);
 
         // Act
-        CloseFully();
+        CloseFully(door);
 
         // Assert
-        Assert.True(_door.IsFullyClosed);
+        Assert.True(door.IsFullyClosed);
     }
 
     [Theory]
@@ -48,34 +47,34 @@ public class LandingDoorTests
     public void LandingDoor_WhenClosingWithObstruction_BecomesStalled(int floor)
     {
         // Arrange
-        _door = new LandingDoor(floor);
-        OpenFully();
+        var door = new LandingDoor(floor);
+        OpenFully(door);
 
         // Act
-        TryCloseWithObstruction();
+        TryCloseWithObstruction(door);
 
         // Assert
-        Assert.True(_door.IsStalled);
-        Assert.False(_door.IsFullyClosed);
+        Assert.True(door.IsStalled);
+        Assert.False(door.IsFullyClosed);
     }
 
-    private void OpenFully()
+    private void OpenFully(ILandingDoor door)
     {
-        _door.StartOpening();
-        _door.Update(OpenDurationSeconds);
+        door.StartOpening();
+        door.Update(OpenDurationSeconds);
     }
 
-    private void CloseFully()
+    private void CloseFully(ILandingDoor door)
     {
-        _door.StartClosing();
-        _door.Update(CloseDurationSeconds);
+        door.StartClosing();
+        door.Update(CloseDurationSeconds);
     }
 
-    private void TryCloseWithObstruction()
+    private void TryCloseWithObstruction(ILandingDoor door)
     {
-        _door.StartClosing();
-        _door.Update(CloseDurationSeconds / 2);
-        _door.IsObstructed = true;
-        _door.Update(CloseDurationSeconds / 2);
+        door.StartClosing();
+        door.Update(CloseDurationSeconds / 2);
+        door.IsObstructed = true;
+        door.Update(CloseDurationSeconds / 2);
     }
 }
