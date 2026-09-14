@@ -10,7 +10,8 @@ public class LandingDoor : ILandingDoor
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
 
-    private float _timer;
+    private VirtualTimer _openingTimer = new VirtualTimer(3.0f);
+    private VirtualTimer _closingTimer = new VirtualTimer(3.0f);
     private DoorState _state;
 
     public LandingDoor(int floor)
@@ -18,7 +19,6 @@ public class LandingDoor : ILandingDoor
         Floor = floor;
         _state = DoorState.FullyClosed;
         IsObstructed = false;
-        _timer = 0f;
     }
 
     public void StartOpening() => TransitionTo(DoorState.Opening);
@@ -40,8 +40,9 @@ public class LandingDoor : ILandingDoor
             return;
         }
 
-        _timer += deltaTime;
-        if (_timer >= CloseDurationSeconds)
+        _closingTimer.Tick(deltaTime);
+        
+        if (_closingTimer.IsExpired)
         {
             _state = DoorState.FullyClosed;
         }
@@ -51,8 +52,9 @@ public class LandingDoor : ILandingDoor
     {
         if (_state != DoorState.Opening) return;
 
-        _timer += deltaTime;
-        if (_timer >= OpenDurationSeconds)
+        _openingTimer.Tick(deltaTime);
+
+        if (_openingTimer.IsExpired)
         {
             _state = DoorState.FullyOpened;
         }
@@ -61,6 +63,7 @@ public class LandingDoor : ILandingDoor
     private void TransitionTo(DoorState state)
     {
         _state = state;
-        _timer = 0f;
+        _openingTimer.Reset();
+        _closingTimer.Reset();
     }
 }
