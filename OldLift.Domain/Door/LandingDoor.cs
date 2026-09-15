@@ -35,15 +35,14 @@ public class LandingDoor : ILandingDoor
 
         if (IsObstructed)
         {
-            State = DoorState.Stalled;
+            SetState(DoorState.Stalled);
             return;
         }
 
         _closingTimer.Tick(deltaTime);
-
         if (_closingTimer.IsExpired)
         {
-            State = DoorState.FullyClosed;
+            SetState(DoorState.FullyClosed);
         }
     }
 
@@ -52,17 +51,18 @@ public class LandingDoor : ILandingDoor
         if (State != DoorState.Opening) return;
 
         _openingTimer.Tick(deltaTime);
-
         if (_openingTimer.IsExpired)
         {
-            State = DoorState.FullyOpened;
+            SetState(DoorState.FullyOpened);
         }
     }
 
     private void TransitionTo(DoorState state)
     {
-        State = state;
+        SetState(state);
         _openingTimer.Reset();
         _closingTimer.Reset();
     }
+
+    private void SetState(DoorState state) => State = state;
 }
