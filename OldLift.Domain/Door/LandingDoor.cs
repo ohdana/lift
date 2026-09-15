@@ -4,14 +4,20 @@ public class LandingDoor : ILandingDoor
     public bool IsObstructed { get; set; }
     public DoorState State { get; private set; }
 
-    private VirtualTimer _openingTimer = new VirtualTimer(3.0f);
-    private VirtualTimer _closingTimer = new VirtualTimer(3.0f);
+    private const float OpenDurationSeconds = 3.0f;
+    private const float CloseDurationSeconds = 3.0f;
+
+    private VirtualTimer _openingTimer;
+    private VirtualTimer _closingTimer;
 
     public LandingDoor(int floor)
     {
         Floor = floor;
         State = DoorState.FullyClosed;
         IsObstructed = false;
+
+        _openingTimer = new VirtualTimer(OpenDurationSeconds);
+        _closingTimer = new VirtualTimer(CloseDurationSeconds);
     }
 
     public void StartOpening() => TransitionTo(DoorState.Opening);
