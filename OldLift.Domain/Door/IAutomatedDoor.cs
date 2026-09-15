@@ -1,6 +1,5 @@
-public interface ILandingDoor : IDoor
+public interface IAutomatedDoor : IDoor
 {
-    int Floor { get; }
     bool IsObstructed { get; set; }
     DoorState State { get; }
 }

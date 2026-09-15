@@ -1,6 +1,5 @@
-public class LandingDoor : ILandingDoor
+public class AutomatedDoor : IAutomatedDoor
 {
-    public int Floor { get; private set; }
     public bool IsObstructed { get; set; }
     public DoorState State { get; private set; }
 
@@ -10,9 +9,8 @@ public class LandingDoor : ILandingDoor
     private VirtualTimer _openingTimer;
     private VirtualTimer _closingTimer;
 
-    public LandingDoor(int floor)
+    public AutomatedDoor()
     {
-        Floor = floor;
         State = DoorState.FullyClosed;
         IsObstructed = false;
 
