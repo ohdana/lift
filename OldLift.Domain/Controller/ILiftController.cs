@@ -1,6 +1,9 @@
 public interface ILiftController
 {
+    int? TargetFloor { get; }
+    bool IsIdle { get; }
+    
     void RegisterCarCall(int floor);
     void RegisterLandingCall(int floor);
-    void Update();
+    void Update(float deltaTime);
 }
