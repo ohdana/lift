@@ -11,7 +11,7 @@ public class LiftControllerTests
 
     public LiftControllerTests()
     {
-        var totalFloors = _maxFloor - _minFloor + 1;
+        var totalFloors = AllFloors.Count();
 
         _carDoor = Substitute.For<IAutomatedDoor>();
         _carDoor.State.Returns(DoorState.FullyClosed);
@@ -57,7 +57,7 @@ public class LiftControllerTests
         _controller.RegisterCarCall(firstTargetFloor);
 
         // Act
-        for (int floor = _minFloor; floor <= _maxFloor; floor++)
+        foreach (var floor in AllFloors)
         {
             _controller.RegisterCarCall(floor);
         }
@@ -74,7 +74,7 @@ public class LiftControllerTests
         _controller.RegisterCarCall(firstTargetFloor);
 
         // Act
-        for (int floor = _minFloor; floor <= _maxFloor; floor++)
+        foreach (var floor in AllFloors)
         {
             _controller.RegisterLandingCall(floor);
         }
@@ -104,7 +104,7 @@ public class LiftControllerTests
         _controller.RegisterLandingCall(firstTargetFloor);
 
         // Act
-        for (int floor = _minFloor; floor <= _maxFloor; floor++)
+        foreach (var floor in AllFloors)
         {
             _controller.RegisterLandingCall(floor);
         }
@@ -121,7 +121,7 @@ public class LiftControllerTests
         _controller.RegisterLandingCall(firstTargetFloor);
 
         // Act
-        for (int floor = _minFloor; floor <= _maxFloor; floor++)
+        foreach (var floor in AllFloors)
         {
             _controller.RegisterCarCall(floor);
         }
@@ -161,7 +161,7 @@ public class LiftControllerTests
 
     public static IEnumerable<object[]> GetEachFloor()
     {
-        for (int floor = _minFloor; floor <= _maxFloor; floor++)
+        foreach (var floor in AllFloors)
         {
             yield return new object[] { floor };
         }
@@ -179,7 +179,7 @@ public class LiftControllerTests
     public static IEnumerable<object[]> GetNotFullyClosedDoorStateAndFloorCombinations()
     {
         var doorStates = Enum.GetValues<DoorState>().Where(state => state != DoorState.FullyClosed);
-        int totalCount = _maxFloor - _minFloor + 1;
+        int totalCount = AllFloors.Count();
 
         foreach (var state in doorStates)
         {
@@ -189,4 +189,6 @@ public class LiftControllerTests
             }
         }
     }
+
+    private static IEnumerable<int> AllFloors => Enumerable.Range(_minFloor, _maxFloor - _minFloor + 1);
 }
