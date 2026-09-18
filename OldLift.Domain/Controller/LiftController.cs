@@ -5,53 +5,52 @@ public class LiftController : ILiftController
 
     private bool _isMoving;
     private bool _isSafetyCircuitComplete => ComputeIsSafetyCircuitComplete();
-    private float _carPosition;
-    private float _targetPosition => TargetFloor.HasValue ? TargetFloor.Value * FloorHeight : 0f;
 
-    private readonly int _minFloor;
-    private readonly int _maxFloor;
-    private readonly int _totalFloors;
-    
+    private int _normalisationOffset;
+    private int? _normalisedTargetFloor => ComputeNormalisedTargetFloor();
+    private float _carPosition;
+    private float? _targetPosition => ComputeTargetPosition();
+
     private readonly bool[] _floorRelays;
 
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
-    private IAutomatedDoor _currentLandingDoor;
 
     private const float MotorSpeed = 0.71f;
     private const float FloorHeight = 3.0f;
 
-    public LiftController(int minFloor, int maxFloor, IAutomatedDoor carDoor, IAutomatedDoor[] landingDoors)
+    public LiftController(int minFloor, IAutomatedDoor carDoor, IAutomatedDoor[] landingDoors)
     {
-        _minFloor = minFloor;
-        _maxFloor = maxFloor;
-        _totalFloors = maxFloor - minFloor + 1;
-        _floorRelays = new bool[_totalFloors];
+        _normalisationOffset = minFloor;
+        _floorRelays = new bool[landingDoors.Count()];
 
         _isMoving = false;
-        _carPosition = _minFloor;
+        _carPosition = 0f;
         _carDoor = carDoor;
         _landingDoors = landingDoors;
-        _currentLandingDoor = _landingDoors[0 - _minFloor];
     }
 
     public void RegisterCarCall(int floor)
     {
-        if (TargetFloor != null) return;
-        LatchFloorRelay(_floorRelays, floor);
+        if (_normalisedTargetFloor != null) return;
+
+        var normalisedRequestedFloor = floor - _normalisationOffset;
+        LatchFloorRelay(_floorRelays, normalisedRequestedFloor);
     }
 
     public void RegisterLandingCall(int floor)
     {
         if (!IsIdle) return;
-        LatchFloorRelay(_floorRelays, floor);
+
+        var normalisedRequestedFloor = floor - _normalisationOffset;
+        LatchFloorRelay(_floorRelays, normalisedRequestedFloor);
     }
 
     public void Update(float deltaTime)
     {
         UpdateDoors(deltaTime);
 
-        if (_isSafetyCircuitComplete && TargetFloor != null)
+        if (_isSafetyCircuitComplete && _normalisedTargetFloor != null)
         {
             _isMoving = true;
         }
@@ -59,35 +58,46 @@ public class LiftController : ILiftController
         if (_isMoving)
         {
             var step = deltaTime * MotorSpeed;
-            MoveCar(step);
+            MoveCar(step, _targetPosition!.Value);
 
-            var isTargetReached = _carPosition == _targetPosition;
+            var isTargetReached = _carPosition == _targetPosition!;
             if (isTargetReached)
             {
                 _isMoving = false;
-                _currentLandingDoor = _landingDoors[TargetFloor!.Value - _minFloor];
                 UnlatchFloorRelays();
                 StartOpeningDoors();
             }
         }
     }
 
-    private void MoveCar(float distance)
+    private void UpdateDoors(float deltaTime)
     {
-        if (_carPosition < _targetPosition)
+        _carDoor.Update(deltaTime);
+        for (int i = 0; i < _landingDoors.Count(); i++)
+        {
+            _landingDoors[i].Update(deltaTime);
+        }
+    }
+
+    private void LatchFloorRelay(bool[] relays, int floor) => relays[floor] = true;
+    private void UnlatchFloorRelays() => _floorRelays[_normalisedTargetFloor!.Value] = false;
+
+    private void MoveCar(float distance, float targetPosition)
+    {
+        if (_carPosition < targetPosition)
         {
             _carPosition += distance;
-            if (_carPosition >= _targetPosition)
+            if (_carPosition >= targetPosition)
             {
-                _carPosition = _targetPosition;
+                _carPosition = targetPosition;
             }
         }
-        else if (_carPosition > _targetPosition)
+        else if (_carPosition > targetPosition)
         {
             _carPosition -= distance;
-            if (_carPosition <= _targetPosition)
+            if (_carPosition <= targetPosition)
             {
-                _carPosition = _targetPosition;
+                _carPosition = targetPosition;
             }
         }
     }
@@ -95,46 +105,39 @@ public class LiftController : ILiftController
     private void StartOpeningDoors()
     {
         _carDoor.StartOpening();
-        _currentLandingDoor.StartOpening();
+
+        var landingDoor = GetCurrentLandingDoor();
+        landingDoor.StartOpening();
     }
 
-    private void UpdateDoors(float deltaTime)
+    private IAutomatedDoor GetCurrentLandingDoor()
     {
-        _carDoor.Update(deltaTime);
-        for (int i = 0; i < _totalFloors; i++)
-        {
-            _landingDoors[i].Update(deltaTime);
-        }
+        var currentFloor = (int)Math.Round(_carPosition / FloorHeight);
+        return _landingDoors[currentFloor];
     }
 
-    private void LatchFloorRelay(bool[] relays, int floor) => relays[floor - _minFloor] = true;
-    private void UnlatchFloorRelays()
+    private int? ComputeNormalisedTargetFloor()
     {
-        var index = TargetFloor!.Value - _minFloor;
-        _floorRelays[index] = false;
-    }
-
-    private int? ComputeTargetFloor()
-    {
-        for (int i = 0; i < _totalFloors; i++)
+        for (int i = 0; i < _floorRelays.Count(); i++)
         {
             if (_floorRelays[i])
             {
-                return i + _minFloor; 
+                return i; 
             }
         }
         return null;
     }
 
-    private bool ComputeIsIdle()
-    {
-        return _isSafetyCircuitComplete && (TargetFloor == null);
-    }
+    private bool ComputeIsIdle() => _isSafetyCircuitComplete && (_normalisedTargetFloor == null);
+    private int? ComputeTargetFloor() => _normalisedTargetFloor.HasValue ? _normalisedTargetFloor.Value + _normalisationOffset : null;
+    private float? ComputeTargetPosition() => _normalisedTargetFloor.HasValue ? _normalisedTargetFloor.Value * FloorHeight : null;
 
     private bool ComputeIsSafetyCircuitComplete()
     {
         var isCarDoorClosed = _carDoor.State == DoorState.FullyClosed;
-        var isLandingDoorClosed = _currentLandingDoor?.State == DoorState.FullyClosed;
+
+        var landingDoor = GetCurrentLandingDoor();
+        var isLandingDoorClosed = landingDoor?.State == DoorState.FullyClosed;
 
         return isCarDoorClosed && isLandingDoorClosed;
     }

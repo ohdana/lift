@@ -6,8 +6,8 @@ public class LiftControllerTests
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
     private ILiftController _controller;
-    private static readonly int _minFloor = -3;
-    private static readonly int _maxFloor = 5;
+    private static readonly int _minFloor = -1;
+    private static readonly int _maxFloor = 4;
 
     public LiftControllerTests()
     {
@@ -23,7 +23,7 @@ public class LiftControllerTests
             _landingDoors[i].State.Returns(DoorState.FullyClosed);
         }
 
-        _controller = new LiftController(_minFloor, _maxFloor, _carDoor, _landingDoors);
+        _controller = new LiftController(_minFloor, _carDoor, _landingDoors);
     }
 
     [Fact]
