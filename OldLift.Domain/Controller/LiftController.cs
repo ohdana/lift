@@ -11,9 +11,8 @@ public class LiftController : ILiftController
     private readonly int _minFloor;
     private readonly int _maxFloor;
     private readonly int _totalFloors;
-
-    private readonly bool[] _carCallRelays;
-    private readonly bool[] _landingCallRelays;
+    
+    private readonly bool[] _floorRelays;
 
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
@@ -27,8 +26,7 @@ public class LiftController : ILiftController
         _minFloor = minFloor;
         _maxFloor = maxFloor;
         _totalFloors = maxFloor - minFloor + 1;
-        _carCallRelays = new bool[_totalFloors];
-        _landingCallRelays = new bool[_totalFloors];
+        _floorRelays = new bool[_totalFloors];
 
         _isMoving = false;
         _carPosition = _minFloor;
@@ -40,13 +38,13 @@ public class LiftController : ILiftController
     public void RegisterCarCall(int floor)
     {
         if (TargetFloor != null) return;
-        LatchFloorRelay(_carCallRelays, floor);
+        LatchFloorRelay(_floorRelays, floor);
     }
 
     public void RegisterLandingCall(int floor)
     {
         if (!IsIdle) return;
-        LatchFloorRelay(_landingCallRelays, floor);
+        LatchFloorRelay(_floorRelays, floor);
     }
 
     public void Update(float deltaTime)
@@ -112,16 +110,15 @@ public class LiftController : ILiftController
     private void LatchFloorRelay(bool[] relays, int floor) => relays[floor - _minFloor] = true;
     private void UnlatchFloorRelays()
     {
-        var index = TargetFloor.Value - _minFloor;
-        _landingCallRelays[index] = false;
-        _carCallRelays[index] = false;
+        var index = TargetFloor!.Value - _minFloor;
+        _floorRelays[index] = false;
     }
 
     private int? ComputeTargetFloor()
     {
         for (int i = 0; i < _totalFloors; i++)
         {
-            if (_carCallRelays[i] || _landingCallRelays[i])
+            if (_floorRelays[i])
             {
                 return i + _minFloor; 
             }
