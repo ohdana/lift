@@ -40,10 +40,25 @@ public class AlarmSystemIntegrationTests
         }
     }
 
-    public void Buzzer_WhileAlarmButtonIsPressed_IsOnUntilButtonIsReleased()
+    public void Buzzer_WhenAlarmButtonIsPressed_IsOn()
     {
         // Arrange
         // Act
+        _carAlarmButton.Press();
+
         // Assert
+        Assert.True(_buzzer.IsOn);
+    }
+
+    public void Buzzer_WhenAlarmButtonIsPressedThenReleased_IsOff()
+    {
+        // Arrange
+        _carAlarmButton.Press();
+
+        // Act
+        _carAlarmButton.Release();
+
+        // Assert
+        Assert.False(_buzzer.IsOn);
     }
 }
