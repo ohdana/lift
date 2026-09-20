@@ -16,11 +16,17 @@ public class LiftController : ILiftController
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
 
-    private const float MotorSpeed = 0.71f;
-    private const float FloorHeight = 3.0f;
+    private readonly float _motorSpeed;
+    private readonly float _floorHeight;
 
-    public LiftController(int minFloor, IAutomatedDoor carDoor, IAutomatedDoor[] landingDoors)
+    public LiftController(int minFloor, 
+        IAutomatedDoor carDoor, 
+        IAutomatedDoor[] landingDoors,
+        float motorSpeed,
+        float floorHeight)
     {
+        _motorSpeed = motorSpeed;
+        _floorHeight = floorHeight;
         _normalisationOffset = minFloor;
         _floorRelays = new bool[landingDoors.Count()];
 
@@ -57,7 +63,7 @@ public class LiftController : ILiftController
 
         if (_isMoving)
         {
-            var step = deltaTime * MotorSpeed;
+            var step = deltaTime * _motorSpeed;
             MoveCar(step, _targetPosition!.Value);
 
             var isTargetReached = _carPosition == _targetPosition!;
@@ -112,7 +118,7 @@ public class LiftController : ILiftController
 
     private IAutomatedDoor GetCurrentLandingDoor()
     {
-        var currentFloor = (int)Math.Round(_carPosition / FloorHeight);
+        var currentFloor = (int)Math.Round(_carPosition / _floorHeight);
         return _landingDoors[currentFloor];
     }
 
@@ -130,7 +136,7 @@ public class LiftController : ILiftController
 
     private bool ComputeIsIdle() => _isSafetyCircuitComplete && (_normalisedTargetFloor == null);
     private int? ComputeTargetFloor() => _normalisedTargetFloor.HasValue ? _normalisedTargetFloor.Value + _normalisationOffset : null;
-    private float? ComputeTargetPosition() => _normalisedTargetFloor.HasValue ? _normalisedTargetFloor.Value * FloorHeight : null;
+    private float? ComputeTargetPosition() => _normalisedTargetFloor.HasValue ? _normalisedTargetFloor.Value * _floorHeight : null;
 
     private bool ComputeIsSafetyCircuitComplete()
     {

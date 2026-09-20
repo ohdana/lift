@@ -3,6 +3,9 @@ using NSubstitute;
 
 public class LiftControllerTests
 {
+    private const float MotorSpeed = 0.71f;
+    private const float FloorHeight = 3.0f;
+
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
     private ILiftController _controller;
@@ -23,7 +26,7 @@ public class LiftControllerTests
             _landingDoors[i].State.Returns(DoorState.FullyClosed);
         }
 
-        _controller = new LiftController(_minFloor, _carDoor, _landingDoors);
+        _controller = new LiftController(_minFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight);
     }
 
     [Fact]
