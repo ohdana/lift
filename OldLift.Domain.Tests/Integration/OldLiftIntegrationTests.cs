@@ -57,10 +57,12 @@ public class OldLiftIntegrationTests
         {
             ImitateSecondsPassed(SecondsPerFloor);
             Assert.Equal(i, _controller.CurrentFloor);
-            AssertDoorsInState(i - _minFloor, DoorState.FullyClosed);
+            Assert.Equal(DoorState.FullyClosed, _carDoor.State);
+            AssertAllLandingDoorsFullyClosed();
         }
 
         _controller.Update(SecondsPerFloor);
+        Assert.Equal(targetFloor, _controller.CurrentFloor);
         AssertDoorsInState(targetFloor - _minFloor, DoorState.Opening);
     }
 
@@ -96,5 +98,10 @@ public class OldLiftIntegrationTests
     {
         Assert.Equal(state, _carDoor.State);
         Assert.Equal(state, _landingDoors[floor].State);
+    }
+
+    private void AssertAllLandingDoorsFullyClosed()
+    {
+        Assert.All(_landingDoors, door => Assert.Equal(DoorState.FullyClosed, door.State));
     }
 }
