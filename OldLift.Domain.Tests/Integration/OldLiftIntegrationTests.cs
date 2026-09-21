@@ -3,6 +3,7 @@ using NSubstitute;
 
 public class OldLiftIntegrationTests
 {
+    private const float TickSize = 0.01f;
     private const float MotorSpeed = 0.71f;
     private const float FloorHeight = 3.0f;
     private const float SecondsPerFloor = FloorHeight / MotorSpeed;
@@ -52,7 +53,13 @@ public class OldLiftIntegrationTests
         _landingButtons[targetFloor - _minFloor].Press();
 
         // Assert
-        Assert.Equal(targetFloor, _controller.TargetFloor!.Value);
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);
+        ImitateSecondsPassed(TickSize * 3);
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
+    private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
+    {
         for (int i = currentFloor - 1; i >= targetFloor ; i--)
         {
             ImitateSecondsPassed(SecondsPerFloor);
@@ -60,10 +67,6 @@ public class OldLiftIntegrationTests
             Assert.Equal(DoorState.FullyClosed, _carDoor.State);
             AssertAllLandingDoorsFullyClosed();
         }
-
-        _controller.Update(SecondsPerFloor);
-        Assert.Equal(targetFloor, _controller.CurrentFloor);
-        AssertDoorsInState(targetFloor - _minFloor, DoorState.Opening);
     }
 
     private void MoveLiftToFloor(int targetFloor)
@@ -86,12 +89,17 @@ public class OldLiftIntegrationTests
 
     private void ImitateSecondsPassed(float seconds)
     {
-        const float tickSize = 0.01f;
-        var ticks = (int) (seconds / tickSize);
+        var ticks = (int) (seconds / TickSize);
         for (int i = 0; i < ticks; i++)
         {
-            _controller.Update(tickSize);
+            _controller.Update(TickSize);
         }
+    }
+
+    private void AssertReachedTargetFloorAndDoorsOpening(int targetFloor)
+    {
+        Assert.Equal(targetFloor, _controller.CurrentFloor);
+        AssertDoorsInState(targetFloor - _minFloor, DoorState.Opening);
     }
 
     private void AssertDoorsInState(int floor, DoorState state)
