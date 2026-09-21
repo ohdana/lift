@@ -56,7 +56,7 @@ public class OldLiftIntegrationTests
         for (int i = currentFloor - 1; i >= targetFloor ; i--)
         {
             ImitateSecondsPassed(SecondsPerFloor);
-            Assert.Equal(i, _controller.CarPosition);
+            Assert.Equal(i, _controller.CurrentFloor);
             AssertDoorsInState(i - _minFloor, DoorState.FullyClosed);
         }
 

@@ -1,6 +1,6 @@
 public interface ILiftController
 {
-    float CarPosition { get; }
+    int CurrentFloor { get; }
     int? TargetFloor { get; }
     bool IsIdle { get; }
 
