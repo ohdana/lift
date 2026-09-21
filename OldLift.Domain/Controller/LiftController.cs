@@ -2,6 +2,7 @@ public class LiftController : ILiftController
 {
     public int? TargetFloor => ComputeTargetFloor();
     public bool IsIdle => ComputeIsIdle();
+    public float CarPosition => (int)Math.Round(_carPosition / _floorHeight) + _normalisationOffset;
 
     private bool _isMoving;
     private bool _isSafetyCircuitComplete => ComputeIsSafetyCircuitComplete();

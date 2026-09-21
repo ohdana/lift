@@ -5,9 +5,11 @@ public class AutomatedDoor : IAutomatedDoor
 
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
+    private const float AutoCloseTimeoutSeconds = 5f;
 
     private VirtualTimer _openingTimer;
     private VirtualTimer _closingTimer;
+    private VirtualTimer _autoCloseTimer;
 
     public AutomatedDoor()
     {
@@ -16,6 +18,7 @@ public class AutomatedDoor : IAutomatedDoor
 
         _openingTimer = new VirtualTimer(OpenDurationSeconds);
         _closingTimer = new VirtualTimer(CloseDurationSeconds);
+        _autoCloseTimer = new VirtualTimer(CloseDurationSeconds);
     }
 
     public void StartOpening() => TransitionTo(DoorState.Opening);
@@ -23,8 +26,29 @@ public class AutomatedDoor : IAutomatedDoor
 
     public void Update(float deltaTime)
     {
-        UpdateClosing(deltaTime);
-        UpdateOpening(deltaTime);
+        if (State == DoorState.Opening)
+        {
+            UpdateOpening(deltaTime);
+        }
+        else if (State == DoorState.FullyOpened)
+        {
+            UpdateAutoClosing(deltaTime);
+        }
+        else if (State == DoorState.Closing)
+        {
+            UpdateClosing(deltaTime);
+        }
+    }
+
+    private void UpdateAutoClosing(float deltaTime)
+    {
+        if (State != DoorState.FullyOpened) return;
+
+        _autoCloseTimer.Tick(deltaTime);
+        if (_autoCloseTimer.IsExpired)
+        {
+            StartClosing();
+        }
     }
 
     private void UpdateClosing(float deltaTime)
@@ -52,6 +76,7 @@ public class AutomatedDoor : IAutomatedDoor
         if (_openingTimer.IsExpired)
         {
             SetState(DoorState.FullyOpened);
+            _autoCloseTimer.Reset();
         }
     }
 
