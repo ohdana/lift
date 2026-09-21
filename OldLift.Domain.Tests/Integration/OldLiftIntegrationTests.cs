@@ -53,19 +53,18 @@ public class OldLiftIntegrationTests
         _landingButtons[targetFloor - _minFloor].Press();
 
         // Assert
-        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);
-        ImitateSecondsPassed(TickSize * 3);
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
     private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
     {
-        for (int i = currentFloor - 1; i >= targetFloor ; i--)
+        for (int i = currentFloor; i > targetFloor ; i--)
         {
-            ImitateSecondsPassed(SecondsPerFloor);
             Assert.Equal(i, _controller.CurrentFloor);
             Assert.Equal(DoorState.FullyClosed, _carDoor.State);
             AssertAllLandingDoorsFullyClosed();
+            ImitateSecondsPassed(SecondsPerFloor);
         }
     }
 
@@ -89,7 +88,7 @@ public class OldLiftIntegrationTests
 
     private void ImitateSecondsPassed(float seconds)
     {
-        var ticks = (int) (seconds / TickSize);
+        var ticks = (int) Math.Ceiling(seconds / TickSize);
         for (int i = 0; i < ticks; i++)
         {
             _controller.Update(TickSize);
