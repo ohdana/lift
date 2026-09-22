@@ -102,6 +102,36 @@ public class OldLiftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
+    [Theory]
+    [MemberData(nameof(GetAllFloors))]
+    public void ZeroDistanceJourney_WhenLandingButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int floor)
+    {
+        // Arrange
+        MoveLiftToFloor(floor);
+
+        // Act
+        _landingButtons[floor - _minFloor].Press();
+
+        // Assert
+        ImitateSecondsPassed(TickSize);
+        AssertReachedTargetFloorAndDoorsOpening(floor);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetAllFloors))]
+    public void ZeroDistanceJourney_WhenCarButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int floor)
+    {
+        // Arrange
+        MoveLiftToFloor(floor);
+
+        // Act
+        _carFloorButtons[floor - _minFloor].Press();
+
+        // Assert
+        ImitateSecondsPassed(TickSize);
+        AssertReachedTargetFloorAndDoorsOpening(floor);
+    }
+
     private void ImitateSecondsPassed(float seconds)
     {
         var ticks = (int) Math.Ceiling(seconds / TickSize);
@@ -169,6 +199,14 @@ public class OldLiftIntegrationTests
             {
                 yield return new object[] { i, j };
             }
+        }
+    }
+
+    public static IEnumerable<object[]> GetAllFloors()
+    {
+        for (int i = _minFloor; i < _maxFloor; i++)
+        {
+            yield return new object[] { i };
         }
     }
 }
