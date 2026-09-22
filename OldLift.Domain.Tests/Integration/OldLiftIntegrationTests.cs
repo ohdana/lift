@@ -8,8 +8,8 @@ public class OldLiftIntegrationTests
     private const float FloorHeight = 3.0f;
     private const float SecondsPerFloor = FloorHeight / MotorSpeed;
 
-    private static readonly int _minFloor = 3;
-    private static readonly int _maxFloor = 12;
+    private static readonly int _minFloor = -3;
+    private static readonly int _maxFloor = 5;
     private readonly ILiftController _controller;
     private readonly IBuzzer _buzzer;
     private readonly IAlarmButton _carAlarmButton;
@@ -57,14 +57,27 @@ public class OldLiftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
-    private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
+    [Theory]
+    [MemberData(nameof(GetDescendingJourneyCombinations))]
+    public void DescendingJourney_WhenCarButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int currentFloor, int targetFloor)
     {
-        for (int i = currentFloor; i > targetFloor; i--)
+        // Arrange
+        MoveLiftToFloor(currentFloor);
+
+        // Act
+        _carFloorButtons[targetFloor - _minFloor].Press();
+
+        // Assert
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
+    private void ImitateSecondsPassed(float seconds)
+    {
+        var ticks = (int) Math.Ceiling(seconds / TickSize);
+        for (int i = 0; i < ticks; i++)
         {
-            Assert.Equal(i, _controller.CurrentFloor);
-            Assert.Equal(DoorState.FullyClosed, _carDoor.State);
-            AssertAllLandingDoorsFullyClosed();
-            ImitateSecondsPassed(SecondsPerFloor);
+            _controller.Update(TickSize);
         }
     }
 
@@ -75,23 +88,14 @@ public class OldLiftIntegrationTests
         Assert.True(_controller.IsIdle);
     }
 
-    public static IEnumerable<object[]> GetDescendingJourneyCombinations()
+    private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
     {
-        for (int i = _maxFloor; i > _minFloor; i--)
+        for (int i = currentFloor; i > targetFloor; i--)
         {
-            for (int j = i - 1; j >= _minFloor; j--)
-            {
-                yield return new object[] { i, j };
-            }
-        }
-    }
-
-    private void ImitateSecondsPassed(float seconds)
-    {
-        var ticks = (int) Math.Ceiling(seconds / TickSize);
-        for (int i = 0; i < ticks; i++)
-        {
-            _controller.Update(TickSize);
+            Assert.Equal(i, _controller.CurrentFloor);
+            Assert.Equal(DoorState.FullyClosed, _carDoor.State);
+            AssertAllLandingDoorsFullyClosed();
+            ImitateSecondsPassed(SecondsPerFloor);
         }
     }
 
@@ -110,5 +114,16 @@ public class OldLiftIntegrationTests
     private void AssertAllLandingDoorsFullyClosed()
     {
         Assert.All(_landingDoors, door => Assert.Equal(DoorState.FullyClosed, door.State));
+    }
+
+    public static IEnumerable<object[]> GetDescendingJourneyCombinations()
+    {
+        for (int i = _maxFloor; i > _minFloor; i--)
+        {
+            for (int j = i - 1; j >= _minFloor; j--)
+            {
+                yield return new object[] { i, j };
+            }
+        }
     }
 }
