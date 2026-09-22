@@ -8,8 +8,8 @@ public class OldLiftIntegrationTests
     private const float FloorHeight = 3.0f;
     private const float SecondsPerFloor = FloorHeight / MotorSpeed;
 
-    private static readonly int _minFloor = 0;
-    private static readonly int _maxFloor = 4;
+    private static readonly int _minFloor = 3;
+    private static readonly int _maxFloor = 12;
     private readonly ILiftController _controller;
     private readonly IBuzzer _buzzer;
     private readonly IAlarmButton _carAlarmButton;
@@ -37,8 +37,8 @@ public class OldLiftIntegrationTests
         _landingButtons = new LandingButton[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
-            _carFloorButtons[i] = new FloorButton(i, _controller);
-            _landingButtons[i] = new LandingButton(i, _controller);
+            _carFloorButtons[i] = new FloorButton(i + _minFloor, _controller);
+            _landingButtons[i] = new LandingButton(i + _minFloor, _controller);
         }
     }
 
@@ -59,7 +59,7 @@ public class OldLiftIntegrationTests
 
     private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
     {
-        for (int i = currentFloor; i > targetFloor ; i--)
+        for (int i = currentFloor; i > targetFloor; i--)
         {
             Assert.Equal(i, _controller.CurrentFloor);
             Assert.Equal(DoorState.FullyClosed, _carDoor.State);
