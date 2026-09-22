@@ -120,18 +120,16 @@ public class OldLiftIntegrationTests
 
     private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
     {
-        var direction = currentFloor > targetFloor ? (-1) : 1;
         var floorCount = Math.Abs(currentFloor - targetFloor);
+        var direction = currentFloor > targetFloor ? (-1) : 1;
 
         var floor = currentFloor;
-        for (int i = 0; i < floorCount; i++)
+        for (int i = 0; i < floorCount; i++, floor += direction)
         {
             Assert.Equal(floor, _controller.CurrentFloor);
             Assert.Equal(DoorState.FullyClosed, _carDoor.State);
             AssertAllLandingDoorsFullyClosed();
             ImitateSecondsPassed(SecondsPerFloor);
-
-            floor += direction;
         }
     }
 
