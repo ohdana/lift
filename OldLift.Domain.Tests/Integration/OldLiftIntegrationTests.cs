@@ -72,6 +72,36 @@ public class OldLiftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
+    [Theory]
+    [MemberData(nameof(GetAscendingJourneyCombinations))]
+    public void AscendingJourney_WhenLandingButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int currentFloor, int targetFloor)
+    {
+        // Arrange
+        MoveLiftToFloor(currentFloor);
+
+        // Act
+        _landingButtons[targetFloor - _minFloor].Press();
+
+        // Assert
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetAscendingJourneyCombinations))]
+    public void AscendingJourney_WhenCarButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int currentFloor, int targetFloor)
+    {
+        // Arrange
+        MoveLiftToFloor(currentFloor);
+
+        // Act
+        _carFloorButtons[targetFloor - _minFloor].Press();
+
+        // Assert
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
     private void ImitateSecondsPassed(float seconds)
     {
         var ticks = (int) Math.Ceiling(seconds / TickSize);
@@ -90,12 +120,18 @@ public class OldLiftIntegrationTests
 
     private void AssertMovingTowardsTargetFloorAndDoorsClosed(int currentFloor, int targetFloor)
     {
-        for (int i = currentFloor; i > targetFloor; i--)
+        var direction = currentFloor > targetFloor ? (-1) : 1;
+        var floorCount = Math.Abs(currentFloor - targetFloor);
+
+        var floor = currentFloor;
+        for (int i = 0; i < floorCount; i++)
         {
-            Assert.Equal(i, _controller.CurrentFloor);
+            Assert.Equal(floor, _controller.CurrentFloor);
             Assert.Equal(DoorState.FullyClosed, _carDoor.State);
             AssertAllLandingDoorsFullyClosed();
             ImitateSecondsPassed(SecondsPerFloor);
+
+            floor += direction;
         }
     }
 
@@ -121,6 +157,17 @@ public class OldLiftIntegrationTests
         for (int i = _maxFloor; i > _minFloor; i--)
         {
             for (int j = i - 1; j >= _minFloor; j--)
+            {
+                yield return new object[] { i, j };
+            }
+        }
+    }
+
+    public static IEnumerable<object[]> GetAscendingJourneyCombinations()
+    {
+        for (int i = _minFloor; i < _maxFloor; i++)
+        {
+            for (int j = i + 1; j <= _maxFloor; j++)
             {
                 yield return new object[] { i, j };
             }
