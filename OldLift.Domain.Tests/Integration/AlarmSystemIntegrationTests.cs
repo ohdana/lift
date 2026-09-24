@@ -8,6 +8,7 @@ public class AlarmSystemIntegrationTests
 
     private readonly int _minFloor = -3;
     private readonly int _maxFloor = 5;
+    private readonly ILogger _logger;
     private readonly ILiftController _controller;
     private readonly IBuzzer _buzzer;
     private readonly IAlarmButton _carAlarmButton;
@@ -19,7 +20,8 @@ public class AlarmSystemIntegrationTests
 
     public AlarmSystemIntegrationTests()
     {
-        _buzzer = new Buzzer();
+        _logger = new LiftLogger();
+        _buzzer = new Buzzer(_logger);
         _carAlarmButton = new AlarmButton(_buzzer);
 
         var totalFloors = _maxFloor - _minFloor + 1;

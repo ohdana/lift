@@ -4,10 +4,12 @@ using NSubstitute;
 public class BuzzerTests
 {
     private IBuzzer _buzzer;
+    private readonly ILogger _logger;
 
     public BuzzerTests()
     {
-        _buzzer = new Buzzer();
+        _logger = Substitute.For<ILogger>();
+        _buzzer = new Buzzer(_logger);
     }
 
     [Fact]

@@ -14,6 +14,7 @@ public class Program
     private static IFloorButton[] _carFloorButtons = null!;
     private static IAlarmButton _carAlarmButton = null!;
     private static IBuzzer _buzzer = null!;
+    private static ILogger _logger = null!;
 
     public static void Main(string[] args)
     {
@@ -152,7 +153,8 @@ public class Program
 
     private static void BuildLift()
     {
-        _buzzer = new Buzzer();
+        _logger = new LiftLogger();
+        _buzzer = new Buzzer(_logger);
         _carAlarmButton = new AlarmButton(_buzzer);
 
         var totalFloors = MaxFloor - MinFloor + 1;
