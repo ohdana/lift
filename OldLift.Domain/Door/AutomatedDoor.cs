@@ -7,22 +7,35 @@ public class AutomatedDoor : IAutomatedDoor
     private const float CloseDurationSeconds = 3.0f;
     private const float AutoCloseTimeoutSeconds = 5f;
 
+    private readonly ILogger _logger;
+
     private VirtualTimer _openingTimer;
     private VirtualTimer _closingTimer;
     private VirtualTimer _autoCloseTimer;
 
-    public AutomatedDoor()
+    public AutomatedDoor(ILogger logger)
     {
         State = DoorState.FullyClosed;
         IsObstructed = false;
+
+        _logger = logger;
 
         _openingTimer = new VirtualTimer(OpenDurationSeconds);
         _closingTimer = new VirtualTimer(CloseDurationSeconds);
         _autoCloseTimer = new VirtualTimer(CloseDurationSeconds);
     }
 
-    public void StartOpening() => TransitionTo(DoorState.Opening);
-    public void StartClosing() => TransitionTo(DoorState.Closing);
+    public void StartOpening()
+    {
+        TransitionTo(DoorState.Opening);
+        _logger.Log("Door starts opening...");
+    }
+
+    public void StartClosing()
+    {
+        TransitionTo(DoorState.Closing);
+        _logger.Log("Door starts closing...");
+    }
 
     public void Update(float deltaTime)
     {
@@ -65,6 +78,7 @@ public class AutomatedDoor : IAutomatedDoor
         if (_closingTimer.IsExpired)
         {
             SetState(DoorState.FullyClosed);
+            _logger.Log("Door fully closed!");
         }
     }
 
@@ -77,6 +91,7 @@ public class AutomatedDoor : IAutomatedDoor
         {
             SetState(DoorState.FullyOpened);
             _autoCloseTimer.Reset();
+            _logger.Log("Door fully open!");
         }
     }
 

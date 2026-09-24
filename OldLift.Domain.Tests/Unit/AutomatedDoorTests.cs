@@ -7,10 +7,12 @@ public class AutomatedDoorTests
     private const float CloseDurationSeconds = 3.0f;
 
     private IAutomatedDoor _door;
+    private ILogger _logger;
 
     public AutomatedDoorTests()
     {
-        _door = new AutomatedDoor();
+        _logger = Substitute.For<ILogger>();
+        _door = new AutomatedDoor(_logger);
     }
 
     [Fact]

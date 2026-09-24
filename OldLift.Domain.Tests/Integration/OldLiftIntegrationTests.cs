@@ -27,11 +27,11 @@ public class OldLiftIntegrationTests
         _carAlarmButton = new AlarmButton(_buzzer, _logger);
 
         var totalFloors = _maxFloor - _minFloor + 1;
-        _carDoor = new AutomatedDoor();
+        _carDoor = new AutomatedDoor(_logger);
         _landingDoors = new AutomatedDoor[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
-            _landingDoors[i] = new AutomatedDoor();
+            _landingDoors[i] = new AutomatedDoor(_logger);
         }
         
         _controller = new LiftController(_minFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight);
