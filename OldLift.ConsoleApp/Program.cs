@@ -7,13 +7,13 @@ public class Program
     private const int MinFloor = 1;
     private const int MaxFloor = 9;
 
-    private static ILiftController _controller;
-    private static IAutomatedDoor _carDoor;
-    private static IAutomatedDoor[] _landingDoors;
-    private static ILandingButton[] _landingButtons;
-    private static IFloorButton[] _carFloorButtons;
-    private static IAlarmButton _carAlarmButton;
-    private static IBuzzer _buzzer;
+    private static ILiftController _controller = null!;
+    private static IAutomatedDoor _carDoor = null!;
+    private static IAutomatedDoor[] _landingDoors = null!;
+    private static ILandingButton[] _landingButtons = null!;
+    private static IFloorButton[] _carFloorButtons = null!;
+    private static IAlarmButton _carAlarmButton = null!;
+    private static IBuzzer _buzzer = null!;
 
     public static void Main(string[] args)
     {
@@ -103,10 +103,16 @@ public class Program
         if (command.Count() < 2)
         {
             PrintInvalidFloorParameterMessage();
+            return null;
         }
 
-        int.TryParse(command[1], out int floor);
-        if (floor == null || floor < MinFloor || floor > MaxFloor)
+        if (!int.TryParse(command[1], out int floor))
+        {
+            PrintInvalidFloorParameterMessage();
+            return null;
+        }
+
+        if (floor < MinFloor || floor > MaxFloor)
         {
             PrintInvalidFloorParameterMessage();
             return null;
