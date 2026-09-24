@@ -24,7 +24,7 @@ public class OldLiftIntegrationTests
     {
         _logger = new LiftLogger();
         _buzzer = new Buzzer(_logger);
-        _carAlarmButton = new AlarmButton(_buzzer);
+        _carAlarmButton = new AlarmButton(_buzzer, _logger);
 
         var totalFloors = _maxFloor - _minFloor + 1;
         _carDoor = new AutomatedDoor();
@@ -39,8 +39,8 @@ public class OldLiftIntegrationTests
         _landingButtons = new LandingButton[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
-            _carFloorButtons[i] = new FloorButton(i + _minFloor, _controller);
-            _landingButtons[i] = new LandingButton(i + _minFloor, _controller);
+            _carFloorButtons[i] = new FloorButton(i + _minFloor, _controller, _logger);
+            _landingButtons[i] = new LandingButton(i + _minFloor, _controller, _logger);
         }
     }
 

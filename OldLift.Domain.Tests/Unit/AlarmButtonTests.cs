@@ -5,11 +5,13 @@ public class AlarmButtonTests
 {
     private readonly IAlarmButton _button;
     private readonly IBuzzer _buzzer;
+    private readonly ILogger _logger;
 
     public AlarmButtonTests()
     {
+        _logger = Substitute.For<ILogger>();
         _buzzer = Substitute.For<IBuzzer>();
-        _button = new AlarmButton(_buzzer);
+        _button = new AlarmButton(_buzzer, _logger);
     }
 
     [Fact]
