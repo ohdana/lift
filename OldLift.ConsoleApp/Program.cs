@@ -86,7 +86,6 @@ public class Program
         var floor = ParseFloor(command);
         if (floor == null) return;
 
-        Console.WriteLine($"Pressing landing button {floor}...");
         _landingButtons[floor.Value - MinFloor].Press();
     }
 
@@ -95,7 +94,6 @@ public class Program
         var floor = ParseFloor(command);
         if (floor == null) return;
 
-        Console.WriteLine($"Pressing car button {floor}...");
         _carFloorButtons[floor.Value - MinFloor].Press();
     }
 
@@ -154,15 +152,16 @@ public class Program
     private static void BuildLift()
     {
         _logger = new LiftLogger();
+        _logger.Verbose = true;
         _buzzer = new Buzzer(_logger);
-        _carAlarmButton = new AlarmButton(_buzzer);
+        _carAlarmButton = new AlarmButton(_buzzer, _logger);
 
         var totalFloors = MaxFloor - MinFloor + 1;
-        _carDoor = new AutomatedDoor();
+        _carDoor = new AutomatedDoor(_logger);
         _landingDoors = new AutomatedDoor[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
-            _landingDoors[i] = new AutomatedDoor();
+            _landingDoors[i] = new AutomatedDoor(_logger);
         }
         
         _controller = new LiftController(MinFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight);
@@ -170,8 +169,8 @@ public class Program
         _landingButtons = new LandingButton[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
-            _carFloorButtons[i] = new FloorButton(i + MinFloor, _controller);
-            _landingButtons[i] = new LandingButton(i + MinFloor, _controller);
+            _carFloorButtons[i] = new FloorButton(i + MinFloor, _controller, _logger);
+            _landingButtons[i] = new LandingButton(i + MinFloor, _controller, _logger);
         }
     }
 }

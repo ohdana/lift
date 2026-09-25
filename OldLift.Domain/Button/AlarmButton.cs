@@ -11,13 +11,13 @@ public class AlarmButton : IAlarmButton
 
     public void Press()
     {
-        _buzzer.SwitchOn();
         _logger.Log($"Alarm button pressed!");
+        _buzzer.SwitchOn();
     }
 
     public void Release()
     {
-        _buzzer.SwitchOff();
         _logger.Log($"Alarm button released!");
+        _buzzer.SwitchOff();
     }
 }
