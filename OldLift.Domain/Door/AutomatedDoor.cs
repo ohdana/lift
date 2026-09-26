@@ -1,3 +1,5 @@
+using System;
+
 public class AutomatedDoor : IAutomatedDoor
 {
     public bool IsObstructed { get; set; }
@@ -8,17 +10,21 @@ public class AutomatedDoor : IAutomatedDoor
     private const float AutoCloseTimeoutSeconds = 5f;
 
     private readonly ILogger _logger;
+    private readonly string _label;
+    private string _logLabelPrefix => string.IsNullOrWhiteSpace(_label) ? "" : $"[{_label}] ";
+    private string _logTimePrefix => $"[{DateTime.Now:HH:mm:ss}]";
 
     private VirtualTimer _openingTimer;
     private VirtualTimer _closingTimer;
     private VirtualTimer _autoCloseTimer;
 
-    public AutomatedDoor(ILogger logger)
+    public AutomatedDoor(ILogger logger, string label = "")
     {
         State = DoorState.FullyClosed;
         IsObstructed = false;
 
         _logger = logger;
+        _label = label;
 
         _openingTimer = new VirtualTimer(OpenDurationSeconds);
         _closingTimer = new VirtualTimer(CloseDurationSeconds);
@@ -28,13 +34,13 @@ public class AutomatedDoor : IAutomatedDoor
     public void StartOpening()
     {
         TransitionTo(DoorState.Opening);
-        _logger.Log("Door starts opening...");
+        _logger.Log($"{_logTimePrefix} {_logLabelPrefix}Door starts opening...");
     }
 
     public void StartClosing()
     {
         TransitionTo(DoorState.Closing);
-        _logger.Log("Door starts closing...");
+        _logger.Log($"{_logTimePrefix} {_logLabelPrefix}Door starts closing...");
     }
 
     public void Update(float deltaTime)
@@ -78,7 +84,7 @@ public class AutomatedDoor : IAutomatedDoor
         if (_closingTimer.IsExpired)
         {
             SetState(DoorState.FullyClosed);
-            _logger.Log("Door fully closed!");
+            _logger.Log($"{_logTimePrefix} {_logLabelPrefix}Door fully closed!");
         }
     }
 
@@ -91,7 +97,7 @@ public class AutomatedDoor : IAutomatedDoor
         {
             SetState(DoorState.FullyOpened);
             _autoCloseTimer.Reset();
-            _logger.Log("Door fully open!");
+            _logger.Log($"{_logTimePrefix} {_logLabelPrefix}Door fully open!");
         }
     }
 

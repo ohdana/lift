@@ -1,8 +1,12 @@
+using System;
+
 public class FloorButton : IFloorButton
 {
     public int Floor { get; private set; }
     private readonly ILiftController _controller;
     private readonly ILogger _logger;
+
+    private string _logTimePrefix => $"[{DateTime.Now:HH:mm:ss}]";
 
     public FloorButton(int floor, ILiftController controller, ILogger logger)
     {
@@ -14,6 +18,6 @@ public class FloorButton : IFloorButton
     public void Press()
     {
         _controller.RegisterCarCall(Floor);
-        _logger.Log($"Floor button {Floor} pressed!");
+        _logger.Log($"{_logTimePrefix} Floor button {Floor} pressed!");
     }
 }

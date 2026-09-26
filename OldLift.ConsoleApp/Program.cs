@@ -198,7 +198,7 @@ public class Program
     {
         Console.WriteLine($"Current floor: {_controller.CurrentFloor}");
         Console.WriteLine($"Doors: {_carDoor.State.ToString()}");
-        
+
         var buzzerStatus = _buzzer.IsOn ? "On" : "Off";
         Console.WriteLine($"Buzzer: {buzzerStatus}");
     }
@@ -211,11 +211,11 @@ public class Program
         _carAlarmButton = new AlarmButton(_buzzer, _logger);
 
         var totalFloors = MaxFloor - MinFloor + 1;
-        _carDoor = new AutomatedDoor(_logger);
+        _carDoor = new AutomatedDoor(_logger, "Car");
         _landingDoors = new AutomatedDoor[totalFloors];
         for (int i = 0; i < totalFloors; i++)
         {
-            _landingDoors[i] = new AutomatedDoor(_logger);
+            _landingDoors[i] = new AutomatedDoor(_logger, $"Landing (floor {i + MinFloor})");
         }
         
         _controller = new LiftController(MinFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight);
