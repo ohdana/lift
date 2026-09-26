@@ -57,10 +57,11 @@ public class Program
     {
         Console.WriteLine("Welcome to the Old Lift console app!");
         PrintHelp();
+        ShowStatus();
 
         while (true)
         {
-            Console.Write("> ");
+            //Console.Write("> ");
             var input = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(input)) continue;
 
@@ -79,6 +80,9 @@ public class Program
                     break;
                 case "alarm":
                     HandleAlarmButtonPress(command);
+                    break;
+                case "status":
+                    ShowStatus();
                     break;
                 case "quit":
                 case "exit":
@@ -188,6 +192,15 @@ public class Program
         Console.WriteLine("     car [floorNumber]        - press a floor button in the car");
         Console.WriteLine("     landing [floorNumber]    - press a landing button");
         Console.WriteLine("     status                   - current lift status");
+    }
+
+    private static void ShowStatus()
+    {
+        Console.WriteLine($"Current floor: {_controller.CurrentFloor}");
+        Console.WriteLine($"Doors: {_carDoor.State.ToString()}");
+        
+        var buzzerStatus = _buzzer.IsOn ? "On" : "Off";
+        Console.WriteLine($"Buzzer: {buzzerStatus}");
     }
 
     private static void BuildLift()
