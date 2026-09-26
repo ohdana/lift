@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Threading;
 
 public class Program
 {
@@ -6,6 +8,8 @@ public class Program
     private const float FloorHeight = 3.0f;
     private const int MinFloor = 1;
     private const int MaxFloor = 9;
+
+    private static readonly object SimulationLock = new object();
 
     private static ILiftController _controller = null!;
     private static IAutomatedDoor _carDoor = null!;
@@ -19,12 +23,40 @@ public class Program
     public static void Main(string[] args)
     {
         BuildLift();
+        StartSimulationLoop();
         RunLoop();
+    }
+
+    private static void StartSimulationLoop()
+    {
+        var thread = new Thread(() =>
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var lastElapsed = 0f;
+            
+            while (true)
+            {
+                var elapsed = (float)stopwatch.Elapsed.TotalSeconds;
+                var delta = elapsed - lastElapsed;
+                lastElapsed = elapsed;
+
+                lock (SimulationLock)
+                {
+                    _controller.Update(delta);
+                }
+
+                Thread.Sleep(50);
+            }
+        });
+
+        thread.IsBackground = true;
+        thread.Start();
     }
 
     private static void RunLoop()
     {
         Console.WriteLine("Welcome to the Old Lift console app!");
+        PrintHelp();
 
         while (true)
         {
@@ -67,17 +99,20 @@ public class Program
         }
 
         var commandParameters = command[1];
-        if (commandParameters == "on")
+        lock (SimulationLock)
         {
-            _carAlarmButton.Press();
-        }
-        else if (commandParameters == "off")
-        {
-            _carAlarmButton.Release();
-        }
-        else
-        {
-            PrintInvalidAlarmParameterMessage();
+            if (commandParameters == "on")
+            {
+                _carAlarmButton.Press();
+            }
+            else if (commandParameters == "off")
+            {
+                _carAlarmButton.Release();
+            }
+            else
+            {
+                PrintInvalidAlarmParameterMessage();
+            }
         }
     }
 
@@ -86,7 +121,10 @@ public class Program
         var floor = ParseFloor(command);
         if (floor == null) return;
 
-        _landingButtons[floor.Value - MinFloor].Press();
+        lock (SimulationLock)
+        {
+            _landingButtons[floor.Value - MinFloor].Press();
+        }
     }
 
     private static void HandleCarFloorButtonPress(string[] command)
@@ -94,7 +132,10 @@ public class Program
         var floor = ParseFloor(command);
         if (floor == null) return;
 
-        _carFloorButtons[floor.Value - MinFloor].Press();
+        lock (SimulationLock)
+        {
+            _carFloorButtons[floor.Value - MinFloor].Press();
+        }
     }
 
     private static int? ParseFloor(string[] command)
