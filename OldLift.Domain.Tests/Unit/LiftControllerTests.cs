@@ -9,6 +9,7 @@ public class LiftControllerTests
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
     private ILiftController _controller;
+    private ILogger _logger;
     private static readonly int _minFloor = -1;
     private static readonly int _maxFloor = 4;
 
@@ -16,6 +17,7 @@ public class LiftControllerTests
     {
         var totalFloors = AllFloors.Count();
 
+        _logger = Substitute.For<ILogger>();
         _carDoor = Substitute.For<IAutomatedDoor>();
         _carDoor.State.Returns(DoorState.FullyClosed);
 
@@ -26,7 +28,7 @@ public class LiftControllerTests
             _landingDoors[i].State.Returns(DoorState.FullyClosed);
         }
 
-        _controller = new LiftController(_minFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight);
+        _controller = new LiftController(_minFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight, _logger);
     }
 
     [Fact]

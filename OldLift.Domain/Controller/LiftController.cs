@@ -1,3 +1,5 @@
+using System;
+
 public class LiftController : ILiftController
 {
     public int? TargetFloor => ComputeTargetFloor();
@@ -12,7 +14,11 @@ public class LiftController : ILiftController
     private float _carPosition;
     private float? _targetPosition => ComputeTargetPosition();
 
+    private string _logTimePrefix => $"[{DateTime.Now:HH:mm:ss}]";
+
     private readonly bool[] _floorRelays;
+
+    private readonly ILogger _logger;
 
     private readonly IAutomatedDoor _carDoor;
     private readonly IAutomatedDoor[] _landingDoors;
@@ -24,8 +30,10 @@ public class LiftController : ILiftController
         IAutomatedDoor carDoor, 
         IAutomatedDoor[] landingDoors,
         float motorSpeed,
-        float floorHeight)
+        float floorHeight,
+        ILogger logger)
     {
+        _logger = logger;
         _motorSpeed = motorSpeed;
         _floorHeight = floorHeight;
         _normalisationOffset = minFloor;
@@ -57,19 +65,34 @@ public class LiftController : ILiftController
     {
         UpdateDoors(deltaTime);
 
-        if (_isSafetyCircuitComplete && _normalisedTargetFloor != null)
+        if (!_isMoving && _isSafetyCircuitComplete && _normalisedTargetFloor != null)
         {
             _isMoving = true;
+            _logger.Log($"{_logTimePrefix} Lift starts moving...");
         }
 
         if (_isMoving)
         {
             var step = deltaTime * _motorSpeed;
+            var currentFloor = CurrentFloor;
             MoveCar(step, _targetPosition!.Value);
+            if (currentFloor != CurrentFloor)
+            {
+                if (CurrentFloor == TargetFloor)
+                {
+                    _logger.Log($"{_logTimePrefix} Reached floor {CurrentFloor}!");
+                }
+                else
+                {
+                    _logger.Log($"{_logTimePrefix} Passing by floor {CurrentFloor}...");
+                    currentFloor = CurrentFloor;
+                }
+            }
 
             var isTargetReached = _carPosition == _targetPosition!;
             if (isTargetReached)
             {
+                _logger.Log($"{_logTimePrefix} Lift stopped.");
                 _isMoving = false;
                 UnlatchFloorRelays();
                 StartOpeningDoors();

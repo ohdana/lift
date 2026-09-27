@@ -32,7 +32,7 @@ public class AlarmSystemIntegrationTests
             _landingDoors[i] = new AutomatedDoor(_logger);
         }
         
-        _controller = new LiftController(_minFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight);
+        _controller = new LiftController(_minFloor, _carDoor, _landingDoors, MotorSpeed, FloorHeight, _logger);
         _carFloorButtons = new FloorButton[totalFloors];
         _landingButtons = new LandingButton[totalFloors];
         for (int i = 0; i < totalFloors; i++)
