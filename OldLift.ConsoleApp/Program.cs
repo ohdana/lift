@@ -19,6 +19,7 @@ public class Program
     private static IAlarmButton _carAlarmButton = null!;
     private static IBuzzer _buzzer = null!;
     private static ILogger _logger = null!;
+    private static bool _isLiftRandomlyBroken = false;
 
     public static void Main(string[] args)
     {
@@ -45,6 +46,12 @@ public class Program
                     _controller.Update(delta);
                 }
 
+                if (_isLiftRandomlyBroken)
+                {
+                    StallLift();
+                    _isLiftRandomlyBroken = false;
+                }
+
                 Thread.Sleep(50);
             }
         });
@@ -61,7 +68,6 @@ public class Program
 
         while (true)
         {
-            //Console.Write("> ");
             var input = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(input)) continue;
 
@@ -84,6 +90,10 @@ public class Program
                 case "status":
                     ShowStatus();
                     break;
+                case "technician":
+                    var isLiftFixed = GetIsLiftFixed();
+                    if (!isLiftFixed) return;
+                    break;
                 case "quit":
                 case "exit":
                     return;
@@ -92,6 +102,46 @@ public class Program
                     break;
             }
         }
+    }
+
+    private static bool GetIsLiftFixed()
+    {
+        Console.WriteLine("Calling a technician...");
+        var techniciansBac = GetTechniciansBAC();
+        if (0.05 <= techniciansBac && techniciansBac < 0.08)
+        {
+            Console.WriteLine("<you are waiting for 40 minutes already>.");
+            Console.WriteLine("Technician comes but he has a hangover.");
+            Console.WriteLine("Cursing a lot, he let's you out but the lift is closed. Basta.");
+            return false;
+        }
+        else if (0.05 <= techniciansBac && techniciansBac < 0.25)
+        {
+            Console.WriteLine("<you are waiting for 20 minutes>.");
+            Console.WriteLine("Technician comes happily tipsy and joking.");
+            Console.WriteLine("He's telling you all the life stories while letting you out and resetting the lift.");
+            return true;
+        }
+        else
+        {
+            Console.WriteLine("No technician available today. Good luck there if you're inside of the lift car.");
+            return false;
+        }
+    }
+
+    private static double GetTechniciansBAC()
+    {
+        var minBac = 0f;
+        var maxBac = 0.5;
+        double currentBac = minBac + ((new Random()).NextDouble() * (maxBac - minBac));
+
+        return currentBac;
+    }
+
+    private static void StallLift()
+    {
+        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Oh no! The lift is stuck. To call the technician, type 'technician'.");
+        _controller.IsStalled = true;
     }
 
     private static void HandleAlarmButtonPress(string[] command)
@@ -128,6 +178,7 @@ public class Program
         lock (SimulationLock)
         {
             _landingButtons[floor.Value - MinFloor].Press();
+            _isLiftRandomlyBroken = GetIsLiftRandomlyBroken();
         }
     }
 
@@ -139,7 +190,15 @@ public class Program
         lock (SimulationLock)
         {
             _carFloorButtons[floor.Value - MinFloor].Press();
+            _isLiftRandomlyBroken = GetIsLiftRandomlyBroken();
         }
+    }
+
+    private static bool GetIsLiftRandomlyBroken()
+    {
+        var chanceOfBreaking = 0.9f;
+        
+        return (new Random()).NextDouble() < chanceOfBreaking;
     }
 
     private static int? ParseFloor(string[] command)
@@ -192,6 +251,7 @@ public class Program
         Console.WriteLine("     car [floorNumber]        - press a floor button in the car");
         Console.WriteLine("     landing [floorNumber]    - press a landing button");
         Console.WriteLine("     status                   - current lift status");
+        Console.WriteLine("     technician               - call the technician");
     }
 
     private static void ShowStatus()

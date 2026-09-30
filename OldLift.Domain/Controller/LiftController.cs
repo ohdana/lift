@@ -4,6 +4,7 @@ public class LiftController : ILiftController
 {
     public int? TargetFloor => ComputeTargetFloor();
     public bool IsIdle => ComputeIsIdle();
+    public bool IsStalled { get; set; }
     public int CurrentFloor => (int)Math.Round(_carPosition / _floorHeight) + _normalisationOffset;
 
     private bool _isMoving;
@@ -33,6 +34,7 @@ public class LiftController : ILiftController
         float floorHeight,
         ILogger logger)
     {
+        IsStalled = false;
         _logger = logger;
         _motorSpeed = motorSpeed;
         _floorHeight = floorHeight;
@@ -61,14 +63,25 @@ public class LiftController : ILiftController
         LatchFloorRelay(_floorRelays, normalisedRequestedFloor);
     }
 
+    public void Reset()
+    {
+        UnlatchFloorRelays();
+        StartOpeningDoors();
+    }
+
     public void Update(float deltaTime)
     {
         UpdateDoors(deltaTime);
 
+        if (IsStalled)
+        {
+            _isMoving = false;
+        }
+
         if (!_isMoving && _isSafetyCircuitComplete && _normalisedTargetFloor != null)
         {
             _isMoving = true;
-            _logger.Log($"{_logTimePrefix} Lift starts moving...");
+            _logger.Log($"{_logTimePrefix} Lift starts moving...");   
         }
 
         if (_isMoving)
@@ -103,6 +116,7 @@ public class LiftController : ILiftController
     private void UpdateDoors(float deltaTime)
     {
         _carDoor.Update(deltaTime);
+        
         for (int i = 0; i < _landingDoors.Count(); i++)
         {
             _landingDoors[i].Update(deltaTime);
@@ -169,6 +183,6 @@ public class LiftController : ILiftController
         var landingDoor = GetCurrentLandingDoor();
         var isLandingDoorClosed = landingDoor?.State == DoorState.FullyClosed;
 
-        return isCarDoorClosed && isLandingDoorClosed;
+        return isCarDoorClosed && isLandingDoorClosed && !IsStalled;
     }
 }

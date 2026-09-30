@@ -77,6 +77,7 @@ public class AutomatedDoor : IAutomatedDoor
         if (IsObstructed)
         {
             SetState(DoorState.Stalled);
+            _logger.Log($"{_logTimePrefix} {_logLabelPrefix}Door is stalled. Call the technician.");
             return;
         }
 
