@@ -42,7 +42,7 @@ public class AutomatedDoorTests
     }
 
     [Fact]
-    public void LandingDoor_WhenClosingWithObstruction_BecomesStalled()
+    public void AutomatedDoor_WhenClosingWithObstruction_BecomesStalled()
     {
         // Arrange
         OpenFully();
