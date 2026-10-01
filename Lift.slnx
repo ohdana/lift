@@ -2,4 +2,6 @@
   <Project Path="OldLift.ConsoleApp/OldLift.ConsoleApp.csproj" />
   <Project Path="OldLift.Domain.Tests/OldLift.Domain.Tests.csproj" />
   <Project Path="OldLift.Domain/OldLift.Domain.csproj" />
+  <Project Path="SimpleModernLift.Domain.Tests/SimpleModernLift.Domain.Tests.csproj" />
+  <Project Path="SimpleModernLift.Domain/SimpleModernLift.Domain.csproj" />
 </Solution>
