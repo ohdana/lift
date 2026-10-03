@@ -90,7 +90,9 @@ public class LiftController
     private void UpdateMovingLift(float deltaTime)
     {
         var updateDistance = deltaTime * _motorSpeed;
+        var floorBeforeMovement = CurrentFloor;
         MoveCar(updateDistance, _targetPosition!.Value);
+        LogMovement(floorBeforeMovement);
 
         var isTargetReached = _targetPosition == _currentPosition;
         if (isTargetReached)
@@ -143,6 +145,20 @@ public class LiftController
     {
         _carDoor.StartClosing();
         _landingDoors[CurrentFloor].StartClosing();
+    }
+
+    private void LogMovement(int floorBeforeMovement)
+    {
+        if (floorBeforeMovement == CurrentFloor) return;
+
+        if (CurrentFloor == TargetFloor)
+        {
+            _logger.Log($"{_logTimePrefix} Reached floor {CurrentFloor}!");
+        }
+        else
+        {
+            _logger.Log($"{_logTimePrefix} Passing by floor {CurrentFloor}...");
+        }
     }
 
     private void MoveCar(float distance, float targetPosition)
