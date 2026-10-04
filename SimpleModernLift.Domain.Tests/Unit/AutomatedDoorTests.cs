@@ -18,7 +18,7 @@ public class AutomatedDoorTests
 
         var label = "Test";
         _obstructionDetector.IsClear.Returns(true);
-        _door = new AutomatedDoor(_logger, _obstructionDetector, label);
+        _door = new AutomatedDoor(label, _obstructionDetector, _logger);
     }
 
     [Fact]

@@ -17,7 +17,7 @@ public class AutomatedDoor : IAutomatedDoor
     private VirtualTimer _closingTimer;
     private VirtualTimer _autoCloseTimer;
 
-    public AutomatedDoor(ILogger logger, IObstructionDetector obstructionDetector, string label)
+    public AutomatedDoor(string label, IObstructionDetector obstructionDetector, ILogger logger)
     {
         State = DoorState.FullyClosed;
 
