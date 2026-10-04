@@ -1,15 +1,15 @@
-public class HelpButton : IHelpButton
+public class AlarmButton : IAlarmButton
 {
     public bool IsConnectionEstablished { get; private set; }
 
     private readonly Guid _liftId;
-    private readonly ILocationServices _locationServices;
+    private readonly ILocationService _locationService;
     private readonly IHelpdeskGateway _helpdeskGateway;
 
-    public HelpButton(Guid liftId, ILocationServices locationServices, IHelpdeskGateway helpdeskGateway)
+    public AlarmButton(Guid liftId, ILocationService locationService, IHelpdeskGateway helpdeskGateway)
     {
         _liftId = liftId;
-        _locationServices = locationServices;
+        _locationService = locationService;
         _helpdeskGateway = helpdeskGateway;
 
         _helpdeskGateway.ConnectionEstablished += OnConnectionEstablished;
@@ -18,7 +18,7 @@ public class HelpButton : IHelpButton
 
     public void Press()
     {
-        var location = _locationServices.GetCurrentLocation();
+        var location = _locationService.GetCurrentLocation();
         _helpdeskGateway.BeginHelpdeskConnection(_liftId, location);
     }
 
