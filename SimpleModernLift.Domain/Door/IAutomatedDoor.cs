@@ -5,5 +5,5 @@ public interface IAutomatedDoor
     void StartOpening();
     void StartClosing();
     
-    void Update(flot deltaTime);
+    void Update(float deltaTime);
 }
