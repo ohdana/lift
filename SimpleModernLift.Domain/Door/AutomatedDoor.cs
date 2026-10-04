@@ -1,6 +1,6 @@
 public class AutomatedDoor : IAutomatedDoor
 {
-    public bool IsObstructed { get; private set; }
+    public bool IsObstructed => !_obstructionDetector.IsClear;
     public DoorState State { get; private set; }
 
     private const float OpenDurationSeconds = 3.0f;
@@ -8,6 +8,7 @@ public class AutomatedDoor : IAutomatedDoor
     private const float AutoCloseTimeoutSeconds = 5f;
 
     private readonly ILogger _logger;
+    private readonly IObstructionDetector _obstructionDetector;
     private readonly string _label;
     private string _logLabelPrefix => $"[{_label}]";
     private string _logTimePrefix => $"[{DateTime.Now:HH:mm:ss}]";
@@ -16,10 +17,11 @@ public class AutomatedDoor : IAutomatedDoor
     private VirtualTimer _closingTimer;
     private VirtualTimer _autoCloseTimer;
 
-    public AutomatedDoor(ILogger logger, string label)
+    public AutomatedDoor(ILogger logger, IObstructionDetector obstructionDetector, string label)
     {
         State = DoorState.FullyClosed;
 
+        _obstructionDetector = obstructionDetector;
         _logger = logger;
         _label = label;
 
