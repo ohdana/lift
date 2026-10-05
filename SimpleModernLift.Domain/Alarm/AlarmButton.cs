@@ -5,12 +5,17 @@ public class AlarmButton : IAlarmButton
     private readonly Guid _liftId;
     private readonly ILocationService _locationService;
     private readonly IHelpdeskGateway _helpdeskGateway;
+    private readonly ILogger _logger;
 
-    public AlarmButton(Guid liftId, ILocationService locationService, IHelpdeskGateway helpdeskGateway)
+    public AlarmButton(Guid liftId,
+        ILocationService locationService,
+        IHelpdeskGateway helpdeskGateway,
+        ILogger logger)
     {
         _liftId = liftId;
         _locationService = locationService;
         _helpdeskGateway = helpdeskGateway;
+        _logger = logger;
 
         _helpdeskGateway.ConnectionEstablished += OnConnectionEstablished;
         _helpdeskGateway.ConnectionFailed += OnConnectionFailed;
