@@ -1,11 +1,11 @@
 using System.Linq;
 
-public class LiftController
+public class LiftController : ILiftController
 {
     public bool IsIdle => ComputeIsIdle();
 
     public int CurrentFloor => ComputeCurrentFloor();
-    public int? TargetFloor;
+    public int? TargetFloor { get; private set; }
 
     private bool _isMoving;
     private bool _isSafetyCircuitComplete => ComputeIsSafetyCircuitComplete();
@@ -74,7 +74,7 @@ public class LiftController
         SetTargetFloor(floor);
     }
     
-    private void Update(float deltaTime)
+    public void Update(float deltaTime)
     {
         UpdateDoors(deltaTime);
 
