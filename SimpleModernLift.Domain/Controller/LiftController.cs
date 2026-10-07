@@ -45,6 +45,7 @@ public class LiftController
 
         _isMoving = false;
         _currentPosition = 0f;
+        _carDoor.AutoCloseTimerExpired += OnCarDoorAutoCloseTimerExpired;
     }
 
     public void RegisterCarCall(int floor)
@@ -109,6 +110,8 @@ public class LiftController
         if (!_isSafetyCircuitComplete) return;
         if (TargetFloor != null)
         {
+            if (_isOverloaded) return;
+            StartClosingDoors();
             StartMoving();
         }
     }
@@ -133,6 +136,12 @@ public class LiftController
         {
             door.Update(deltaTime);
         }
+    }
+
+    private void OnCarDoorAutoCloseTimerExpired()
+    {
+        if (_isOverloaded) return;
+        StartClosingDoors();
     }
 
     private void StartOpeningDoors()

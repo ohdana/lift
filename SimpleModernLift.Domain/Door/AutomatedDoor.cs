@@ -3,6 +3,8 @@ public class AutomatedDoor : IAutomatedDoor
     public bool IsObstructed => !_obstructionDetector.IsClear;
     public DoorState State { get; private set; }
 
+    public event Action? AutoCloseTimerExpired;
+
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
     private const float AutoCloseTimeoutSeconds = 5f;
@@ -97,7 +99,7 @@ public class AutomatedDoor : IAutomatedDoor
         _autoCloseTimer.Tick(deltaTime);
         if (_autoCloseTimer.IsExpired)
         {
-            StartClosing();
+            AutoCloseTimerExpired?.Invoke();
             return;
         }
     }
