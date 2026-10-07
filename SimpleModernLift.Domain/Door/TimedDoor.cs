@@ -1,13 +1,13 @@
-public class AutomatedDoor : IAutomatedDoor
+public class TimedDoor : ITimedDoor
 {
     public bool IsObstructed => !_obstructionDetector.IsClear;
     public DoorState State { get; private set; }
 
-    public event Action? AutoCloseTimerExpired;
+    public event Action? TimerExpired;
 
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
-    private const float AutoCloseTimeoutSeconds = 5f;
+    private const float TimerTimeoutSeconds = 5f;
 
     private readonly ILogger _logger;
     private readonly IObstructionDetector _obstructionDetector;
@@ -17,9 +17,9 @@ public class AutomatedDoor : IAutomatedDoor
 
     private VirtualTimer _openingTimer;
     private VirtualTimer _closingTimer;
-    private VirtualTimer _autoCloseTimer;
+    private VirtualTimer _timer;
 
-    public AutomatedDoor(string label, IObstructionDetector obstructionDetector, ILogger logger)
+    public TimedDoor(string label, IObstructionDetector obstructionDetector, ILogger logger)
     {
         State = DoorState.FullyClosed;
 
@@ -29,7 +29,7 @@ public class AutomatedDoor : IAutomatedDoor
 
         _openingTimer = new VirtualTimer(OpenDurationSeconds);
         _closingTimer = new VirtualTimer(CloseDurationSeconds);
-        _autoCloseTimer = new VirtualTimer(AutoCloseTimeoutSeconds);
+        _timer = new VirtualTimer(TimerTimeoutSeconds);
     }
 
     public void StartOpening()
@@ -96,10 +96,10 @@ public class AutomatedDoor : IAutomatedDoor
 
         if (IsObstructed) return;
 
-        _autoCloseTimer.Tick(deltaTime);
-        if (_autoCloseTimer.IsExpired)
+        _timer.Tick(deltaTime);
+        if (_timer.IsExpired)
         {
-            AutoCloseTimerExpired?.Invoke();
+            TimerExpired?.Invoke();
             return;
         }
     }
@@ -109,7 +109,7 @@ public class AutomatedDoor : IAutomatedDoor
         SetState(state);
         _openingTimer.Reset();
         _closingTimer.Reset();
-        _autoCloseTimer.Reset();
+        _timer.Reset();
     }
 
     private void SetState(DoorState state) => State = state;

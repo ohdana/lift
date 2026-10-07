@@ -18,8 +18,8 @@ public class LiftController
 
     private readonly float _motorSpeed;
     private readonly float _floorHeight;
-    private readonly IAutomatedDoor _carDoor;
-    private readonly IReadOnlyDictionary<int, IAutomatedDoor> _landingDoors;
+    private readonly ITimedDoor _carDoor;
+    private readonly IReadOnlyDictionary<int, ITimedDoor> _landingDoors;
     private readonly IObstructionDetector _obstructionDetector;
     private readonly IOverloadDetector _overloadDetector;
     private readonly ILogger _logger;
@@ -30,8 +30,8 @@ public class LiftController
         float floorHeight,
         IObstructionDetector obstructionDetector,
         IOverloadDetector overloadDetector,
-        IAutomatedDoor carDoor,
-        IReadOnlyDictionary<int, IAutomatedDoor> landingDoors,
+        ITimedDoor carDoor,
+        IReadOnlyDictionary<int, ITimedDoor> landingDoors,
         ILogger logger)
     {
         _carDoor = carDoor;
@@ -45,7 +45,7 @@ public class LiftController
 
         _isMoving = false;
         _currentPosition = 0f;
-        _carDoor.AutoCloseTimerExpired += OnCarDoorAutoCloseTimerExpired;
+        _carDoor.TimerExpired += OnCarDoorTimerExpired;
     }
 
     public void RegisterCarCall(int floor)
@@ -138,7 +138,7 @@ public class LiftController
         }
     }
 
-    private void OnCarDoorAutoCloseTimerExpired()
+    private void OnCarDoorTimerExpired()
     {
         if (_isOverloaded) return;
         StartClosingDoors();

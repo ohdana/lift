@@ -1,28 +1,28 @@
 using Xunit;
 using NSubstitute;
 
-public class AutomatedDoorTests
+public class TimedDoorTests
 {
     private const float TickSize = 0.01f;
     private const float OpenDurationSeconds = 3.0f;
     private const float CloseDurationSeconds = 3.0f;
 
-    private IAutomatedDoor _door;
+    private ITimedDoor _door;
     private IObstructionDetector _obstructionDetector;
     private ILogger _logger;
 
-    public AutomatedDoorTests()
+    public TimedDoorTests()
     {
         _obstructionDetector = Substitute.For<IObstructionDetector>();
         _logger = Substitute.For<ILogger>();
 
         var label = "Test";
         _obstructionDetector.IsClear.Returns(true);
-        _door = new AutomatedDoor(label, _obstructionDetector, _logger);
+        _door = new TimedDoor(label, _obstructionDetector, _logger);
     }
 
     [Fact]
-    public void AutomatedDoor_WhenOpening_BecomesOpened()
+    public void TimedDoor_WhenOpening_BecomesOpened()
     {
         // Arrange
         CloseFully();
@@ -35,7 +35,7 @@ public class AutomatedDoorTests
     }
 
     [Fact]
-    public void AutomatedDoor_WhenClosingWithNoObstruction_BecomesClosed()
+    public void TimedDoor_WhenClosingWithNoObstruction_BecomesClosed()
     {
         // Arrange
         OpenFully();
@@ -48,7 +48,7 @@ public class AutomatedDoorTests
     }
 
     [Fact]
-    public void AutomatedDoor_WhenClosingWithObstruction_StartsReopening()
+    public void TimedDoor_WhenClosingWithObstruction_StartsReopening()
     {
         // Arrange
         OpenFully();
