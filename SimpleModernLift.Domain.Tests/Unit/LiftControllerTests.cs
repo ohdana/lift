@@ -39,7 +39,7 @@ public class LiftControllerTests
             _carFloorButtons[i] = Substitute.For<IFloorButton>();
         }
 
-        _controller = new LiftController(MotorSpeed, FloorHeight, _obstructionDetector, _overloadDetector, _carDoor, _landingDoors.AsReadOnly(), _landingButtons.AsReadOnly(), _landingButtons.AsReadOnly(), _logger);
+        _controller = new LiftController(MotorSpeed, FloorHeight, _obstructionDetector, _overloadDetector, _carDoor, _landingDoors.AsReadOnly(), _landingButtons.AsReadOnly(), _carFloorButtons.AsReadOnly(), _logger);
     }
 
     [Fact]
