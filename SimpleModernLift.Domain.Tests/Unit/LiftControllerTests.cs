@@ -10,6 +10,8 @@ public class LiftControllerTests
     private readonly IOverloadDetector _overloadDetector;
     private readonly ITimedDoor _carDoor;
     private readonly IDictionary<int, ITimedDoor> _landingDoors;
+    private readonly IDictionary<int, IFloorButton> _landingButtons;
+    private readonly IDictionary<int, IFloorButton> _carFloorButtons;
     private ILiftController _controller;
     private ILogger _logger;
     private static readonly int _minFloor = -1;
@@ -26,14 +28,18 @@ public class LiftControllerTests
         _carDoor.State.Returns(DoorState.FullyClosed);
 
         _landingDoors = new Dictionary<int, ITimedDoor>();
+        _landingButtons = new Dictionary<int, IFloorButton>();
+        _carFloorButtons = new Dictionary<int, IFloorButton>();
         for (int i = _minFloor; i <= _maxFloor; i++)
         {
             var door = Substitute.For<ITimedDoor>();
             door.State.Returns(DoorState.FullyClosed);
             _landingDoors[i] = door;
+            _landingButtons[i] = Substitute.For<IFloorButton>();
+            _carFloorButtons[i] = Substitute.For<IFloorButton>();
         }
 
-        _controller = new LiftController(MotorSpeed, FloorHeight, _obstructionDetector, _overloadDetector, _carDoor, _landingDoors.AsReadOnly(), _logger);
+        _controller = new LiftController(MotorSpeed, FloorHeight, _obstructionDetector, _overloadDetector, _carDoor, _landingDoors.AsReadOnly(), _landingButtons.AsReadOnly(), _landingButtons.AsReadOnly(), _logger);
     }
 
     [Fact]

@@ -25,6 +25,9 @@ public class LiftController : ILiftController
     private readonly ILogger _logger;
     private string _logTimePrefix => $"[{DateTime.Now:HH:mm:ss}]";
 
+    private readonly IReadOnlyDictionary<int, IFloorButton> _landingButtons;
+    private readonly IReadOnlyDictionary<int, IFloorButton> _carFloorButtons;
+
     public LiftController(
         float motorSpeed,
         float floorHeight,
@@ -32,6 +35,8 @@ public class LiftController : ILiftController
         IOverloadDetector overloadDetector,
         ITimedDoor carDoor,
         IReadOnlyDictionary<int, ITimedDoor> landingDoors,
+        IReadOnlyDictionary<int, IFloorButton> landingButtons,
+        IReadOnlyDictionary<int, IFloorButton> carFloorButtons,
         ILogger logger)
     {
         _carDoor = carDoor;
@@ -46,6 +51,15 @@ public class LiftController : ILiftController
         _isMoving = false;
         _currentPosition = 0f;
         _carDoor.TimerExpired += OnCarDoorTimerExpired;
+
+        _landingButtons = landingButtons;
+        _carFloorButtons = carFloorButtons;
+
+        foreach (var floor in _validFloors)
+        {
+            _landingButtons[floor].Pressed += OnLandingButtonPressed;
+            _carFloorButtons[floor].Pressed += OnCarFloorButtonPressed;
+        }
     }
 
     public void RegisterCarCall(int floor)
@@ -137,6 +151,9 @@ public class LiftController : ILiftController
             door.Update(deltaTime);
         }
     }
+
+    private void OnLandingButtonPressed(int floor) => RegisterLandingCall(floor);
+    private void OnCarFloorButtonPressed(int floor) => RegisterCarCall(floor);
 
     private void OnCarDoorTimerExpired()
     {
