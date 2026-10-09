@@ -87,11 +87,52 @@ public class SimpleModerniftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
+    [Theory]
+    [MemberData(nameof(GetAscendingJourneyCombinations))]
+    public void AscendingJourney_WhenLandingButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int currentFloor, int targetFloor)
+    {
+        // Arrange
+        MoveLiftToFloor(currentFloor);
+
+        // Act
+        _landingButtons[targetFloor].Press();
+
+        // Assert
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetAscendingJourneyCombinations))]
+    public void AscendingJourney_WhenCarButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int currentFloor, int targetFloor)
+    {
+        // Arrange
+        MoveLiftToFloor(currentFloor);
+
+        // Act
+        _carFloorButtons[targetFloor].Press();
+
+        // Assert
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
     public static IEnumerable<object[]> GetDescendingJourneyCombinations()
     {
         for (int i = _maxFloor; i > _minFloor; i--)
         {
             for (int j = i - 1; j >= _minFloor; j--)
+            {
+                yield return new object[] { i, j };
+            }
+        }
+    }
+
+    public static IEnumerable<object[]> GetAscendingJourneyCombinations()
+    {
+        for (int i = _minFloor; i < _maxFloor; i++)
+        {
+            for (int j = i + 1; j <= _maxFloor; j++)
             {
                 yield return new object[] { i, j };
             }
