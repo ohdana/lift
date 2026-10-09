@@ -72,6 +72,21 @@ public class SimpleModerniftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
+    [Theory]
+    [MemberData(nameof(GetDescendingJourneyCombinations))]
+    public void DescendingJourney_WhenCarButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int currentFloor, int targetFloor)
+    {
+        // Arrange
+        MoveLiftToFloor(currentFloor);
+
+        // Act
+        _carFloorButtons[targetFloor].Press();
+
+        // Assert
+        AssertMovingTowardsTargetFloorAndDoorsClosed(currentFloor, targetFloor);  
+        AssertReachedTargetFloorAndDoorsOpening(targetFloor);
+    }
+
     public static IEnumerable<object[]> GetDescendingJourneyCombinations()
     {
         for (int i = _maxFloor; i > _minFloor; i--)
