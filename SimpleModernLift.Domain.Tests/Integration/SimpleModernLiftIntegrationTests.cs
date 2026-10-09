@@ -117,6 +117,36 @@ public class SimpleModerniftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(targetFloor);
     }
 
+    [Theory]
+    [MemberData(nameof(GetAllFloors))]
+    public void ZeroDistanceJourney_WhenLandingButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int floor)
+    {
+        // Arrange
+        MoveLiftToFloor(floor);
+
+        // Act
+        _landingButtons[floor].Press();
+
+        // Assert
+        ImitateSecondsPassed(TickSize);
+        AssertReachedTargetFloorAndDoorsOpening(floor);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetAllFloors))]
+    public void ZeroDistanceJourney_WhenCarButtonPressed_LiftOpensSuccessfullyAtTargetFloor(int floor)
+    {
+        // Arrange
+        MoveLiftToFloor(floor);
+
+        // Act
+        _carFloorButtons[floor].Press();
+
+        // Assert
+        ImitateSecondsPassed(TickSize);
+        AssertReachedTargetFloorAndDoorsOpening(floor);
+    }
+
     public static IEnumerable<object[]> GetDescendingJourneyCombinations()
     {
         for (int i = _maxFloor; i > _minFloor; i--)
@@ -136,6 +166,14 @@ public class SimpleModerniftIntegrationTests
             {
                 yield return new object[] { i, j };
             }
+        }
+    }
+
+    public static IEnumerable<object[]> GetAllFloors()
+    {
+        for (int i = _minFloor; i < _maxFloor; i++)
+        {
+            yield return new object[] { i };
         }
     }
 
