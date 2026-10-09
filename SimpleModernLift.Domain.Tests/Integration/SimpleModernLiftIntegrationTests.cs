@@ -147,6 +147,49 @@ public class SimpleModerniftIntegrationTests
         AssertReachedTargetFloorAndDoorsOpening(floor);
     }
 
+    [Theory]
+    [MemberData(nameof(GetAllFloors))]
+    public void Lift_WhenOverloaded_DoesntCloseDoors(int floor)
+    {
+        // Arrange
+        OpenDoors();
+        _overloadDetector.IsOverloaded.Returns(true);
+
+        // Act
+        _carFloorButtons[floor].Press();
+
+        // Assert
+        ImitateSecondsPassed(10);
+        AssertDoorsInState(_controller.CurrentFloor, DoorState.FullyOpened);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetAllFloors))]
+    public void Lift_WhenOverloadCleared_ClosesDoors(int floor)
+    {
+        // Arrange
+        OpenDoors();
+        _overloadDetector.IsOverloaded.Returns(true);
+        _carFloorButtons[floor].Press();
+        ImitateSecondsPassed(10);
+
+        // Act
+        _overloadDetector.IsOverloaded.Returns(false);
+        ImitateSecondsPassed(TickSize);
+
+        // Assert
+        AssertDoorsInState(_controller.CurrentFloor, DoorState.Closing);
+    }
+
+    private void OpenDoors()
+    {
+        _carFloorButtons[_controller.CurrentFloor].Press();
+        while (_carDoor.State != DoorState.FullyOpened)
+        {
+            ImitateSecondsPassed(TickSize);
+        }
+    }
+
     public static IEnumerable<object[]> GetDescendingJourneyCombinations()
     {
         for (int i = _maxFloor; i > _minFloor; i--)
